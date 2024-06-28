@@ -81,7 +81,7 @@ class PyMail:
         message['Subject'] = self.subject
 
         # Attach the HTML content to the email
-        message.attach(MIMEText(self.html_content, 'html'))
+        message.attach(MIMEText(self.html_template, 'html'))
 
         try:
             server = smtplib.SMTP(self.smtp_server, self.smtp_port)
