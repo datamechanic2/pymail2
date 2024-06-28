@@ -33,14 +33,14 @@ class PyMail:
     
     @staticmethod
     def __version__():
-        return '0.1.0'
+        return '0.2.0'
 
     def __init__(self, 
                  server_type: Union[str, None] = 'GMAIL', 
                  user: Union[str, None] = None,
                  password: Union[str, None] = None, 
                  from_email: Union[str, None] = None,
-                 to_email: Union[str, None] = None, 
+                 to_email: Union[list, None] = None, 
                  subject: Union[str, None] = None,
                  template_path: Union[str, None] = None
                 ) -> None:
@@ -72,14 +72,11 @@ class PyMail:
     
     def send(self):
         """Send the email using the provided details and HTML template."""
-
-        # Replace placeholders in the HTML template with actual values
-        html_content = self.html_template.replace('{{name}}', 'John Doe')
-
+        
         # Create a MIMEText object
         message = MIMEMultipart('alternative')
         message['From'] = self.from_email
-        message['To'] = self.to_email
+        message['To'] = ", ".join(self.to_email)
         message['Subject'] = self.subject
 
         # Attach the HTML content to the email
@@ -91,7 +88,16 @@ class PyMail:
             server.login(self.smtp_user, self.smtp_password)
             server.sendmail(self.from_email, self.to_email, message.as_string())
             print('Email sent successfully.')
+        except smtplib.SMTPAuthenticationError:
+            raise RuntimeError("Failed to authenticate with the SMTP server. Check your username and password.")
+        except smtplib.SMTPRecipientsRefused:
+            raise RuntimeError("All recipients were refused. Nobody got the email.")
+        except smtplib.SMTPSenderRefused:
+            raise RuntimeError("The sender address was refused.")
+        except smtplib.SMTPDataError:
+            raise RuntimeError("The SMTP server refused to accept the message data.")
         except Exception as e:
+            print(traceback.print_exc())
             raise RuntimeError(f'Failed to send email: {e}')
         finally:
             server.quit()
