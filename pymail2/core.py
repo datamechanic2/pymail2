@@ -2,6 +2,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Union
+import traceback
 
 class PyMail:
 
@@ -72,7 +73,7 @@ class PyMail:
     
     def send(self):
         """Send the email using the provided details and HTML template."""
-        
+
         # Create a MIMEText object
         message = MIMEMultipart('alternative')
         message['From'] = self.from_email
